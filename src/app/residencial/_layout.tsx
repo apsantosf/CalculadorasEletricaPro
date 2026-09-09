@@ -1,0 +1,218 @@
+import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Slot, usePathname, useRouter } from "expo-router";
+import {
+  Alert,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { DataProvider, useData } from "../../context/ResidencialContext";
+
+function BarraInferiorFixa() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const insets = useSafeAreaInsets();
+
+  const { comodos } = useData();
+  const projetoVazio = comodos.length === 0;
+
+  const bottomOffset =
+    Platform.OS === "android" ? Math.max(insets.bottom + 16, 24) : 24;
+
+  // 💡 CHAVES ATUALIZADAS para a nova estrutura isolada
+  const tabs = [
+    {
+      key: "/residencial",
+      title: "Início",
+      icon: "home",
+      pack: "fontawesome",
+      alwaysEnabled: true,
+    },
+    {
+      key: "/residencial/carga",
+      title: "Carga",
+      icon: "clipboard-list",
+      pack: "fontawesome",
+      alwaysEnabled: true,
+    },
+    {
+      key: "/residencial/comodos",
+      title: "Cômodos",
+      icon: "lightbulb",
+      pack: "fontawesome",
+      alwaysEnabled: true,
+    },
+    {
+      key: "/residencial/tue",
+      title: "TUEs",
+      icon: "bolt",
+      pack: "fontawesome",
+      alwaysEnabled: false,
+    },
+    {
+      key: "/residencial/quadro",
+      title: "Quadro",
+      icon: "sitemap",
+      pack: "fontawesome",
+      alwaysEnabled: false,
+    },
+    {
+      key: "/residencial/orcamento",
+      title: "Materiais",
+      icon: "clipboard-check",
+      pack: "fontawesome",
+      alwaysEnabled: false,
+    },
+    {
+      key: "/residencial/guia",
+      title: "Guia",
+      icon: "tools",
+      pack: "fontawesome",
+      alwaysEnabled: true,
+    },
+  ];
+
+  return (
+    <View style={[styles.tabBarWrapper, { bottom: bottomOffset }]}>
+      <View style={styles.tabBar}>
+        {tabs.map((tab) => {
+          // Ajuste para garantir que a aba Início fique ativa na rota raiz do módulo
+          const isActive =
+            pathname === tab.key ||
+            (pathname === "/residencial/" && tab.key === "/residencial");
+
+          const isDisabled = projetoVazio && !tab.alwaysEnabled;
+
+          const activeColor = "#2563eb";
+          const inactiveColor = "#6b7280";
+          const disabledColor = "#d1d5db";
+
+          const color = isActive
+            ? activeColor
+            : isDisabled
+              ? disabledColor
+              : inactiveColor;
+
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              // 💡 TypeScript corrigido: Usar ternário em vez de &&
+              style={[styles.tabItem, isDisabled ? { opacity: 0.5 } : null]}
+              onPress={() => {
+                if (isDisabled) {
+                  const msg =
+                    "Adicione ao menos um Cômodo antes de acessar esta aba.";
+                  Platform.OS === "web"
+                    ? window.alert(msg)
+                    : Alert.alert("Aba Bloqueada", msg);
+                  return;
+                }
+                router.replace(tab.key as any);
+              }}
+              activeOpacity={0.7}
+            >
+              {tab.pack === "fontawesome" ? (
+                <FontAwesome5 name={tab.icon as any} size={20} color={color} />
+              ) : (
+                <MaterialCommunityIcons
+                  name={tab.icon as any}
+                  size={22}
+                  color={color}
+                />
+              )}
+              {(isActive || Platform.OS === "web") && (
+                <Text style={[styles.tabLabel, { color }]} numberOfLines={1}>
+                  {tab.title}
+                </Text>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+function LayoutRaiz() {
+  return (
+    <DataProvider>
+      <View style={styles.wrapperWeb}>
+        <View style={{ flex: 1 }}>
+          <Slot />
+        </View>
+        <BarraInferiorFixa />
+      </View>
+    </DataProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <LayoutRaiz />
+    </SafeAreaProvider>
+  );
+}
+
+// 💡 TypeScript corrigido nas regras Web
+const styles = StyleSheet.create({
+  wrapperWeb: {
+    flex: 1,
+    backgroundColor: "#f3f4f6",
+    ...(Platform.OS === "web"
+      ? {
+          maxWidth: 450,
+          width: "100%",
+          alignSelf: "center",
+          height: "100vh" as any, // Ignora o alerta de tipagem nativa
+        }
+      : {
+          width: "100%",
+        }),
+  },
+  tabBarWrapper: {
+    maxWidth: 450,
+    width: "96%",
+    alignSelf: "center",
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    height: 65,
+    paddingBottom: 6,
+    paddingTop: 6,
+    elevation: 4,
+    ...(Platform.OS === "web"
+      ? {
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" as any, // Ignora o alerta de tipagem nativa
+        }
+      : {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        }),
+    justifyContent: "center",
+    position: "absolute",
+    left: "2%",
+    right: "2%",
+  },
+  tabBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flex: 1,
+    paddingHorizontal: 5,
+  },
+  tabItem: { alignItems: "center", justifyContent: "center", flex: 1 },
+  tabLabel: {
+    fontSize: 10,
+    fontWeight: "bold",
+    marginTop: 2,
+    textAlign: "center",
+  },
+});
