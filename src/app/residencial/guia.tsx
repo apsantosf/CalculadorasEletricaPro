@@ -161,7 +161,7 @@ export default function TelaGuia() {
 
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push("/idr")}
+            onPress={() => router.push("/residencial/idr")}
           >
             <View style={styles.iconBoxYellow}>
               <FontAwesome5
@@ -177,7 +177,7 @@ export default function TelaGuia() {
 
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push("/dps")}
+            onPress={() => router.push("/residencial/dps")}
           >
             <View style={styles.iconBoxRed}>
               <FontAwesome5 name="bolt" size={16} color="#fff" />
@@ -189,7 +189,7 @@ export default function TelaGuia() {
 
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push("/retrofit")}
+            onPress={() => router.push("/residencial/retrofit")}
           >
             <View style={styles.iconBoxBlue}>
               <FontAwesome5 name="tools" size={16} color="#fff" />
@@ -201,7 +201,7 @@ export default function TelaGuia() {
 
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push("/galeria")}
+            onPress={() => router.push("/residencial/galeria")}
           >
             <View style={[styles.iconBoxBlue, { backgroundColor: "#8b5cf6" }]}>
               <FontAwesome5 name="images" size={14} color="#fff" />

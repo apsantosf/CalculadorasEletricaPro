@@ -267,7 +267,7 @@ export default function MateriaisScreen() {
 
   const irParaOrcamento = () => {
     Keyboard.dismiss();
-    router.push("/orcamento");
+    router.push("/solar/orcamento");
   };
 
   if (!projeto)
@@ -289,6 +289,8 @@ export default function MateriaisScreen() {
   const maoDeObraLocal = parseFloat(projeto?.maoDeObra) || 0;
   const valorTotalEquipamentos =
     resultado.valorTotalProjeto - (resultado.maoDeObra || 0);
+  const qtdEstruturas = Math.ceil(qtdPlacas / 4);
+  const qtdConectores = 2;
   const valorTotalCorreto = valorTotalEquipamentos + maoDeObraLocal;
 
   const valorPlaca = parseFloat(projeto?.potenciaPlaca) || 550;
@@ -530,7 +532,7 @@ export default function MateriaisScreen() {
             </Text>
           </View>
           <View style={styles.badgeQtd}>
-            <Text style={styles.txtBadgeQtd}>1 conj.</Text>
+            <Text style={styles.txtBadgeQtd}>{qtdEstruturas} conj.</Text>
           </View>
         </View>
 
@@ -576,7 +578,7 @@ export default function MateriaisScreen() {
             </Text>
           </View>
           <View style={styles.badgeQtd}>
-            <Text style={styles.txtBadgeQtd}>1 conj.</Text>
+            <Text style={styles.txtBadgeQtd}>{qtdConectores} conj.</Text>
           </View>
         </View>
 

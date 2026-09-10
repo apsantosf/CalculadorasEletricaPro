@@ -36,15 +36,25 @@ function BarraInferiorFixa() {
     Platform.OS === "android" ? Math.max(insets.bottom + 16, 24) : 24;
 
   const tabs = [
-    { key: "/", title: "Início", icon: "home", pack: "fontawesome" },
-    { key: "/cargas", title: "Cargas", icon: "elevator", pack: "material" },
+    { key: "/predial/", title: "Início", icon: "home", pack: "fontawesome" },
     {
-      key: "/prumadas",
+      key: "/predial/cargas",
+      title: "Cargas",
+      icon: "elevator",
+      pack: "material",
+    },
+    {
+      key: "/predial/prumadas",
       title: "Prumadas",
       icon: "building",
       pack: "fontawesome",
     },
-    { key: "/quadro", title: "QGBT", icon: "bolt", pack: "fontawesome" },
+    {
+      key: "/predial/quadro",
+      title: "QGBT",
+      icon: "bolt",
+      pack: "fontawesome",
+    },
   ];
 
   return (

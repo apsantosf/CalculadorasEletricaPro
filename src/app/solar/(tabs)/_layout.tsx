@@ -77,7 +77,7 @@ export default function TabsLayout() {
         name="cargas"
         options={{
           title: "Cargas",
-          href: modoDireto ? null : "/cargas",
+          href: modoDireto ? null : "/solar/cargas",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="format-list-checks"
@@ -91,7 +91,7 @@ export default function TabsLayout() {
         name="materiais"
         options={{
           title: "Materiais",
-          href: temDados ? "/materiais" : null,
+          href: temDados ? "/solar/materiais" : null,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="toolbox" size={size} color={color} />
           ),
@@ -101,7 +101,7 @@ export default function TabsLayout() {
         name="memorial"
         options={{
           title: "Memorial",
-          href: temDados ? "/memorial" : null,
+          href: temDados ? "/solar/memorial" : null,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
               name="file-document"

@@ -15,16 +15,21 @@ import {
   View,
 } from "react-native";
 import { REGIOES_SOLARES } from "../../../constants/regioes";
+import { calcularSistema } from "../../../utils/calculoSolar";
+import { obterPrecosLocais } from "../../../utils/storagePrecos";
 import { carregarProjetoAtivo } from "../../../utils/storageSolar";
 
 export default function MemorialScreen() {
   const [projeto, setProjeto] = useState<any>(null);
+  const [tabelaPrecos, setTabelaPrecos] = useState<any[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       const fetchDados = async () => {
         const proj = await carregarProjetoAtivo();
+        const precos = await obterPrecosLocais();
         setProjeto(proj);
+        setTabelaPrecos(precos);
       };
       fetchDados();
     }, []),
@@ -41,6 +46,7 @@ export default function MemorialScreen() {
   const isDireto = projeto?.tipoCalculo === "direto";
   const isMisto = projeto?.tipoCalculo === "misto";
 
+  // Cálculos de consumo (Mantidos pois são os indicadores base do memorial)
   const consumoBaseWh =
     ((parseFloat(projeto?.consumoDiretokWh) || 0) * 1000) / 30;
   const consumoEquipamentosWh = (projeto?.inventario || []).reduce(
@@ -64,10 +70,10 @@ export default function MemorialScreen() {
   const nomeEstado = regiao ? regiao.nome : "Não informado";
   const siglaEstado = projeto?.estado ? `(${projeto.estado})` : "";
 
-  const eficienciaSistema = 0.75;
-  const potenciaPicoWp =
-    hsp > 0 ? consumoDiarioWh / (hsp * eficienciaSistema) : 0;
-  const inversorKw = potenciaPicoWp / 1000;
+  // 💡 MÁGICA: O Memorial agora usa EXATAMENTE o mesmo cálculo do Orçamento!
+  // Adeus "conta de padaria", olá precisão matemática!
+  const resultado = calcularSistema(projeto, tabelaPrecos);
+  const { potenciaPicoWp, qtdPlacas, inversorKw, totalBaterias } = resultado;
 
   const diasAutonomia = 2;
   const tensaoBancoV = 24;
@@ -76,11 +82,11 @@ export default function MemorialScreen() {
     (consumoDiarioWh * diasAutonomia) / (tensaoBancoV * profundidadeDescarga);
 
   const valorPlaca = parseFloat(projeto?.potenciaPlaca) || 550;
-  const qtdPlacas = Math.ceil(potenciaPicoWp / valorPlaca);
   const valorBateria = parseFloat(projeto?.capacidadeBateria) || 220;
-  const qtdBateriasSerie = tensaoBancoV / 12;
-  const qtdStringsParalelo = Math.ceil(capacidadeBateriasAh / valorBateria);
-  const totalBaterias = qtdBateriasSerie * qtdStringsParalelo;
+
+  const maoDeObra = parseFloat(projeto?.maoDeObra) || 0;
+  const qtdEstruturas = Math.ceil(qtdPlacas / 4);
+  const qtdConectores = 2;
 
   const exportarPDF = async () => {
     Keyboard.dismiss();
@@ -156,37 +162,38 @@ export default function MemorialScreen() {
       }
 
       const htmlListaMateriais = `
-        <h2 class="section-title">4. Lista de Materiais Mínimos (BoM)</h2>
-        <table>
-          <tr>
-            <th class="left">Equipamento / Material</th>
-            <th>Especificação Técnica</th>
-            <th>Quantidade</th>
-          </tr>
-          <tr>
-            <td class="left">Módulos Fotovoltaicos</td>
-            <td>Potência individual: ${valorPlaca}W</td>
-            <td>${qtdPlacas} un</td>
-          </tr>
-          <tr>
-            <td class="left">Inversor Solar (${projeto?.temRede ? "On-Grid" : "Off-Grid"})</td>
-            <td>Potência mínima sugerida: ${inversorKw.toFixed(2)} kW</td>
-            <td>1 un</td>
-          </tr>
-          <tr>
-            <td class="left">Estrutura de Fixação</td>
-            <td>Trilhos e fixadores para ${qtdPlacas} módulos</td>
-            <td>1 kit</td>
-          </tr>
-          ${projeto?.temRede ? `<tr><td class="left">Quadro de Proteção (String Box)</td><td>Proteção CA e CC integrada</td><td>1 un</td></tr>` : ""}
-          <tr>
-            <td class="left">Cabeamento e Conectores</td>
-            <td>Cabos solares e conectores MC4 compatíveis</td>
-            <td>1 kit</td>
-          </tr>
-          ${!projeto?.temRede ? `<tr><td class="left">Banco de Baterias (12V)</td><td>Capacidade unitária: ${valorBateria}Ah (Arranjo ${tensaoBancoV}V)</td><td>${totalBaterias} un</td></tr>` : ""}
-        </table>
-      `;
+      <h2 class="section-title">4. Lista de Materiais Mínimos (BoM)</h2>
+      <table>
+        <tr>
+          <th class="left">Equipamento / Material</th>
+          <th>Especificação Técnica</th>
+          <th>Quantidade</th>
+        </tr>
+        <tr>
+          <td class="left">Módulos Fotovoltaicos</td>
+          <td>Potência individual: ${valorPlaca}W</td>
+          <td>${qtdPlacas} un</td>
+        </tr>
+        <tr>
+          <td class="left">Inversor Solar (${projeto?.temRede ? "On-Grid" : "Off-Grid"})</td>
+          <td>Potência mínima sugerida: ${inversorKw.toFixed(2)} kW</td>
+          <td>1 un</td>
+        </tr>
+        <tr>
+          <td class="left">Estrutura de Fixação</td>
+          <td>Trilhos e fixadores para ${qtdPlacas} módulos</td>
+          <td>${qtdEstruturas} conj(s)</td>
+        </tr>
+        ${projeto?.temRede ? `<tr><td class="left">Quadro de Proteção (String Box)</td><td>Proteção CA e CC integrada</td><td>1 un</td></tr>` : ""}
+        <tr>
+          <td class="left">Cabeamento e Conectores</td>
+          <td>Cabos solares e conectores MC4 compatíveis</td>
+          <td>${qtdConectores} conj(s)</td>
+        </tr>
+        ${!projeto?.temRede ? `<tr><td class="left">Banco de Baterias (12V)</td><td>Capacidade unitária: ${valorBateria}Ah (Arranjo ${tensaoBancoV}V)</td><td>${totalBaterias} un</td></tr>` : ""}
+        ${maoDeObra > 0 ? `<tr><td class="left" style="font-weight:bold;">Serviço de Instalação</td><td>Mão de Obra do Projeto</td><td style="font-weight:bold;">1 serv</td></tr>` : ""}
+      </table>
+    `;
 
       const htmlOrientacoes = `
         <h2 class="section-title">5. Orientações Comerciais e Técnicas</h2>

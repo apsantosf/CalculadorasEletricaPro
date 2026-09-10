@@ -44,57 +44,98 @@ export default function ScreenOrcamento() {
 
         let quantidadesAtuais: Record<string, number> = {};
         const proj = await carregarProjetoAtivo();
-        let precosCompletos = [...precosBase];
 
         if (proj) {
-          const num = parseFloat(proj.potenciaPlaca) || 550;
-          const itemEncontrado = precosCompletos.find(
-            (p) =>
-              p.nome.toLowerCase().includes(`${num}w`) ||
-              p.nome.toLowerCase().includes(`${num} w`),
-          );
+          setProjeto(proj);
 
-          if (!itemEncontrado) {
-            precosCompletos.push({
-              id: `mod_temp_${num}`,
-              nome: `Módulo Solar Fotovoltaico ${num}W (Sem Preço)`,
-              precoMedio: 0,
+          // 1. Roda a inteligência e puxa os preços processados PERFEITOS
+          const resultado = calcularSistema(proj, precosBase);
+          const { qtdPlacas, inversorKw, totalBaterias, precos } = resultado;
+          const numPlaca = parseFloat(proj.potenciaPlaca) || 550;
+
+          // 2. 💡 MÁGICA: Constrói a lista com as informações EXATAS do cálculo
+          // Sem depender de buscar no banco e correr risco de não achar
+          let itensEssenciais: MaterialBase[] = [
+            {
+              id: "modulos_gerador",
+              nome: `Módulo Solar Fotovoltaico ${numPlaca}W`,
+              precoMedio: precos.pPlaca || 0,
               medida: "und",
               categoria: "modulo",
+            },
+            {
+              id: "inversor_gerador",
+              nome: `Inversor Solar (${proj.temRede ? "On-Grid" : "Off-Grid"})`,
+              precoMedio: precos.pInversor || 0,
+              medida: "und",
+              categoria: "inversor",
+            },
+            {
+              id: "estrutura_gerador",
+              nome: "Estrutura de Fixação",
+              precoMedio: precos.pEstrutura || 0,
+              medida: "conj",
+              categoria: "estrutura",
+            },
+            {
+              id: "conector_gerador",
+              nome: "Cabeamento e Conectores",
+              precoMedio: precos.pConector || 0,
+              medida: "par", // Usa par para formatar como "prs" no orçamento
+              categoria: "conector",
+            },
+          ];
+
+          if (proj.temRede) {
+            itensEssenciais.push({
+              id: "stringbox_gerador",
+              nome: "Quadro de Proteção (Caixa de Cordas)",
+              precoMedio: precos.pStringBox || 0,
+              medida: "und",
+              categoria: "stringbox",
+            });
+          } else {
+            itensEssenciais.push({
+              id: "bateria_gerador",
+              nome: "Banco de Baterias (12V)",
+              precoMedio: precos.pBateria || 0,
+              medida: "und",
+              categoria: "bateria",
             });
           }
 
+          // Remove itens repetidos/padrões antigos do banco apenas por limpeza visual
+          const precosFiltrados = precosBase.filter(
+            (p) =>
+              !p.id.startsWith("mod_temp") &&
+              p.id !== "inv_padrao" &&
+              p.id !== "est_ceramico" &&
+              p.id !== "string_box_1" &&
+              p.id !== "conector_mc4" &&
+              p.id !== "bat_est_220ah",
+          );
+
+          const precosCompletos = [...itensEssenciais, ...precosFiltrados];
           setTabelaPrecos(precosCompletos);
-          setProjeto(proj);
 
-          const resultado = calcularSistema(proj, precosCompletos);
-          const { qtdPlacas, idPlacaDinamico, idInversor, totalBaterias } =
-            resultado;
-
+          // 3. 💡 Zera o carrinho atual e popula com a matemática EXATA da tela de Materiais
           precosCompletos.forEach((item) => {
-            if (
-              item.id.startsWith("mod_") ||
-              item.id.startsWith("inv_") ||
-              item.id === "est_ceramico" ||
-              item.id === "string_box_1" ||
-              item.id === "conector_mc4" ||
-              item.id === "bat_est_220ah"
-            ) {
-              quantidadesAtuais[item.id] = 0;
-            }
+            quantidadesAtuais[item.id] = 0;
           });
 
           if (qtdPlacas > 0) {
-            quantidadesAtuais[idPlacaDinamico] = qtdPlacas;
-            quantidadesAtuais["est_ceramico"] = Math.ceil(qtdPlacas / 4);
-            if (proj.temRede) quantidadesAtuais["string_box_1"] = 1;
-            quantidadesAtuais["conector_mc4"] = 2;
+            quantidadesAtuais["modulos_gerador"] = qtdPlacas;
+            // A matemática real: 1 Estrutura segura 4 placas
+            quantidadesAtuais["estrutura_gerador"] = Math.ceil(qtdPlacas / 4);
+            // 2 pares de conectores padrão
+            quantidadesAtuais["conector_gerador"] = 2;
+            if (proj.temRede) quantidadesAtuais["stringbox_gerador"] = 1;
           }
 
-          if (resultado.inversorKw > 0) {
-            quantidadesAtuais[idInversor] = 1;
+          if (inversorKw > 0) {
+            quantidadesAtuais["inversor_gerador"] = 1;
             if (!proj.temRede)
-              quantidadesAtuais["bat_est_220ah"] = totalBaterias;
+              quantidadesAtuais["bateria_gerador"] = totalBaterias;
           }
         }
 
@@ -147,7 +188,7 @@ export default function ScreenOrcamento() {
               ? "m"
               : item.medida === "par"
                 ? "prs"
-                : item.medida === "kit"
+                : item.medida === "kit" || item.medida === "conj"
                   ? "conjs"
                   : "und";
 
@@ -240,20 +281,27 @@ export default function ScreenOrcamento() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
+
+      {/* 💡 CORREÇÃO DA NAVEGAÇÃO WEB (FIM DO ERRO GO_BACK) */}
       <CustomHeader
         title="Orçamento Financeiro"
         onBackPress={() => {
           if (mostrarTodos) {
             setMostrarTodos(false);
           } else {
-            if (router.canGoBack()) {
-              router.back();
+            if (Platform.OS === "web") {
+              router.replace("/solar/materiais");
             } else {
-              router.replace("/");
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace("/solar/materiais");
+              }
             }
           }
         }}
       />
+
       <ScrollView
         style={styles.scrollArea}
         contentContainerStyle={styles.content}
@@ -270,7 +318,7 @@ export default function ScreenOrcamento() {
               ? "m"
               : item.medida === "par"
                 ? "prs"
-                : item.medida === "kit"
+                : item.medida === "kit" || item.medida === "conj"
                   ? "conjs"
                   : "und";
           return (
