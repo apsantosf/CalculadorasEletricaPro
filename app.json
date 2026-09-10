@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "CalculadorasEletricaPro",
+    "name": "Kit Elétrica Pro",
     "slug": "CalculadorasEletricaPro",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,7 +17,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.apsantosf.CalculadorasEletricaPro"
     },
     "web": {
       "output": "static",
@@ -39,7 +40,8 @@
         "expo-build-properties",
         {
           "android": {
-            "enableProguardInReleaseBuilds": true
+            "enableProguardInReleaseBuilds": true,
+            "enableMinifyInReleaseBuilds": true
           }
         }
       ]
@@ -47,6 +49,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c3a4d7e9-60ab-4ccd-8dbe-9822c1dabe52"
+      }
     }
   }
 }
