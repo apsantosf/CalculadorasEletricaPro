@@ -2,13 +2,14 @@
   "expo": {
     "name": "Kit Elétrica Pro",
     "slug": "CalculadorasEletricaPro",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "calculadoraseletricapro",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.apsantosf.CalculadorasEletricaPro"
+      "package": "com.apsantosf.CalculadorasEletricaPro",
+      "versionCode": 2
     },
     "web": {
       "output": "static",

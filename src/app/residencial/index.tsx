@@ -78,13 +78,13 @@ export default function ScreenInicio() {
 
   const handleNovoProjeto = () => {
     zerarProjeto();
-    router.push("/carga");
+    router.push("residencial/carga");
   };
 
   const handleAbrirProjeto = (id: string) => {
     carregarProjeto(id);
     setModalProjetosVisivel(false);
-    router.push("/carga");
+    router.push("residencial/carga");
   };
 
   const confirmarExclusao = (id: string, nome: string) => {

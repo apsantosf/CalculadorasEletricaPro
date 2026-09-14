@@ -14,7 +14,7 @@ export function checarAtualizacao() {
         // 💡 A MÁGICA AQUI: O Alerta trava a tela e obriga o clique no botão
         Alert.alert(
           "Atualização Obrigatória ⚡",
-          "Uma nova versão crítica do aplicativo Elétrica Solar está disponível na loja. Precisamos atualizar para garantir a precisão dos cálculos fotovoltaicos e do Fator de Ciclo para o funcionamento correto dos cálculos.",
+          "Uma nova versão crítica do Kit Elétrica Pro está disponível. Precisamos atualizar para garantir a precisão e o funcionamento correto de todos os cálculos (Residencial, Predial e Solar).",
           [
             {
               text: "Atualizar Agora",
