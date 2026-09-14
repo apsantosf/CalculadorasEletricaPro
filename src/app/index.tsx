@@ -20,10 +20,8 @@ export default function MenuPrincipal() {
   const handleSairApp = () => {
     setModalSair(false);
     if (Platform.OS === "android") {
-      // No celular: Fecha o app de verdade
       BackHandler.exitApp();
     } else if (Platform.OS === "web" && typeof window !== "undefined") {
-      // Na Web: Avisa o usuário e joga para uma página em branco
       window.alert(
         "Sessão encerrada com segurança! Você já pode fechar esta aba.",
       );
@@ -33,9 +31,9 @@ export default function MenuPrincipal() {
 
   return (
     <>
-      {/* 💡 Injeta o botão "X" no canto direito do cabeçalho existente */}
       <Stack.Screen
         options={{
+          title: "⚡ 🏢 ☀️ Kit Elétrica Pro",
           headerRight: () => (
             <TouchableOpacity
               onPress={() => setModalSair(true)}
@@ -49,6 +47,18 @@ export default function MenuPrincipal() {
 
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerContainer}>
+          <View style={styles.rowIcones}>
+            <View style={styles.iconWrapper}>
+              <Text style={styles.emojiPrincipal}>⚡</Text>
+            </View>
+            <View style={styles.iconWrapper}>
+              <Text style={styles.emojiPrincipal}>🏢</Text>
+            </View>
+            <View style={styles.iconWrapper}>
+              <Text style={styles.emojiPrincipal}>☀️</Text>
+            </View>
+          </View>
+
           <Text style={styles.title}>Bem-vindo ao Kit Elétrica Pro</Text>
           <Text style={styles.subtitle}>
             Selecione o módulo desejado para iniciar seus dimensionamentos e
@@ -58,7 +68,6 @@ export default function MenuPrincipal() {
 
         <TouchableOpacity
           style={styles.card}
-          // 💡 Caminho corrigido para navegação absoluta
           onPress={() => router.push("/residencial")}
         >
           <Text style={styles.cardTitle}>⚡ Elétrica Residencial</Text>
@@ -70,7 +79,6 @@ export default function MenuPrincipal() {
 
         <TouchableOpacity
           style={[styles.card, { borderLeftColor: "#F39C12" }]}
-          // 💡 Caminho corrigido para navegação absoluta
           onPress={() => router.push("/predial")}
         >
           <Text style={styles.cardTitle}>🏢 Elétrica Predial</Text>
@@ -82,7 +90,6 @@ export default function MenuPrincipal() {
 
         <TouchableOpacity
           style={[styles.card, { borderLeftColor: "#27AE60" }]}
-          // 💡 Caminho corrigido para navegação absoluta
           onPress={() => router.push("/solar")}
         >
           <Text style={styles.cardTitle}>☀️ Elétrica Solar</Text>
@@ -91,16 +98,29 @@ export default function MenuPrincipal() {
           </Text>
         </TouchableOpacity>
 
+        {/* 💡 NOVO BOTÃO: Tela de Normas Técnicas */}
+        <TouchableOpacity
+          style={[styles.card, { borderLeftColor: "#8E44AD" }]}
+          onPress={() => router.push("/normas")}
+        >
+          <Text style={styles.cardTitle}>📚 Normas Técnicas</Text>
+          <Text style={styles.cardDesc}>
+            Entenda como a NBR 5410, NBR 16690 e a Lei 14.300 fundamentam nossos
+            cálculos.
+          </Text>
+        </TouchableOpacity>
+
+        {/* 💡 CAIXINHA CINZA DE VOLTA: Como um selo de qualidade no rodapé */}
         <View style={styles.normasContainer}>
-          <Text style={styles.normasTitle}>Base Técnica</Text>
+          <Text style={styles.normasTitle}>Base Técnica e Segurança</Text>
           <Text style={styles.normasDesc}>
-            Cálculos desenvolvidos com base nas diretrizes da NBR 5410 e ABNT
-            NBR 16690.
+            Cálculos desenvolvidos com rigor técnico, fundamentados nas
+            diretrizes da NBR 5410 e ABNT NBR 16690.
           </Text>
         </View>
       </ScrollView>
 
-      {/* 💡 Modal Global de Saída do Kit */}
+      {/* Modal Global de Saída do Kit */}
       <Modal visible={modalSair} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -141,6 +161,27 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     marginTop: 10,
   },
+  rowIcones: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 15,
+  },
+  iconWrapper: {
+    backgroundColor: "#FFFFFF",
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  emojiPrincipal: {
+    fontSize: 22,
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -176,8 +217,10 @@ const styles = StyleSheet.create({
     color: "#7F8C8D",
     lineHeight: 20,
   },
+  // 💡 ESTILOS DA CAIXINHA CINZA (Mantidos e reforçados)
   normasContainer: {
-    marginTop: 30,
+    marginTop: 20,
+    marginBottom: 20,
     padding: 15,
     backgroundColor: "#EAECEE",
     borderRadius: 8,
@@ -193,9 +236,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#95A5A6",
     textAlign: "center",
+    lineHeight: 18,
   },
-
-  // 💡 Estilos novos para o botão do cabeçalho e o modal
   botaoSairHeader: {
     paddingHorizontal: 15,
     paddingVertical: 5,
