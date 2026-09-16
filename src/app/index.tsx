@@ -1,5 +1,6 @@
 // src/app/index.tsx
 
+import Constants from "expo-constants"; // 💡 Importação para ler o app.json
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -17,6 +18,9 @@ export default function MenuPrincipal() {
   const router = useRouter();
   const [modalSair, setModalSair] = useState(false);
 
+  // 💡 Puxa a versão automaticamente do app.json
+  const appVersion = Constants.expoConfig?.version || "1.0.3";
+
   const handleSairApp = () => {
     setModalSair(false);
     if (Platform.OS === "android") {
@@ -33,7 +37,8 @@ export default function MenuPrincipal() {
     <>
       <Stack.Screen
         options={{
-          title: "⚡ 🏢 ☀️ Kit Elétrica Pro",
+          // 💡 TÍTULO DINÂMICO com a versão
+          title: `⚡ 🏢 ☀️ Kit Elétrica Pro v${appVersion}`,
           headerRight: () => (
             <TouchableOpacity
               onPress={() => setModalSair(true)}
@@ -98,7 +103,6 @@ export default function MenuPrincipal() {
           </Text>
         </TouchableOpacity>
 
-        {/* 💡 NOVO BOTÃO: Tela de Normas Técnicas */}
         <TouchableOpacity
           style={[styles.card, { borderLeftColor: "#8E44AD" }]}
           onPress={() => router.push("/normas")}
@@ -110,7 +114,6 @@ export default function MenuPrincipal() {
           </Text>
         </TouchableOpacity>
 
-        {/* 💡 CAIXINHA CINZA DE VOLTA: Como um selo de qualidade no rodapé */}
         <View style={styles.normasContainer}>
           <Text style={styles.normasTitle}>Base Técnica e Segurança</Text>
           <Text style={styles.normasDesc}>
@@ -120,7 +123,6 @@ export default function MenuPrincipal() {
         </View>
       </ScrollView>
 
-      {/* Modal Global de Saída do Kit */}
       <Modal visible={modalSair} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -217,7 +219,6 @@ const styles = StyleSheet.create({
     color: "#7F8C8D",
     lineHeight: 20,
   },
-  // 💡 ESTILOS DA CAIXINHA CINZA (Mantidos e reforçados)
   normasContainer: {
     marginTop: 20,
     marginBottom: 20,
