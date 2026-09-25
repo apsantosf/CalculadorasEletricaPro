@@ -19,7 +19,6 @@ export default function RootLayout() {
         <Stack.Screen
           name="index"
           options={{
-            title: "Kit Elétrica Pro",
             headerShown: true,
             headerStyle: { backgroundColor: "#208AEF" },
             headerTintColor: "#fff",

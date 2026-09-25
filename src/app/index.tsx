@@ -52,17 +52,7 @@ export default function MenuPrincipal() {
 
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerContainer}>
-          <View style={styles.rowIcones}>
-            <View style={styles.iconWrapper}>
-              <Text style={styles.emojiPrincipal}>⚡</Text>
-            </View>
-            <View style={styles.iconWrapper}>
-              <Text style={styles.emojiPrincipal}>🏢</Text>
-            </View>
-            <View style={styles.iconWrapper}>
-              <Text style={styles.emojiPrincipal}>☀️</Text>
-            </View>
-          </View>
+          {/* 💡 A linha com os ícones circulares foi removida daqui */}
 
           <Text style={styles.title}>Bem-vindo ao Kit Elétrica Pro</Text>
           <Text style={styles.subtitle}>
@@ -162,27 +152,6 @@ const styles = StyleSheet.create({
   headerContainer: {
     marginBottom: 30,
     marginTop: 10,
-  },
-  rowIcones: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 15,
-  },
-  iconWrapper: {
-    backgroundColor: "#FFFFFF",
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  emojiPrincipal: {
-    fontSize: 22,
   },
   title: {
     fontSize: 24,
