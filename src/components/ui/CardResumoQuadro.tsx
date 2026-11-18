@@ -15,20 +15,55 @@ interface CardResumoQuadroProps {
   resultadoQDC: ResultadoDimensionamento;
   resultadoDemanda: ResultadoDimensionamento;
   concessionaria: string;
+  tipoPadraoNovo?: string;
+  tensaoFornecimento?: string;
 }
 
 export function CardResumoQuadro({
   resultadoQDC,
   resultadoDemanda,
   concessionaria,
+  tipoPadraoNovo,
+  tensaoFornecimento,
 }: CardResumoQuadroProps) {
+  const infoTensao =
+    tipoPadraoNovo && tensaoFornecimento
+      ? `${tipoPadraoNovo} (${tensaoFornecimento})`
+      : tensaoFornecimento
+        ? tensaoFornecimento
+        : "";
+
   return (
     <View style={styles.container}>
-      {/* CARTÃO VERDE: QDC */}
-      <View style={styles.cardRelatorio}>
-        <Text style={styles.tituloRelatorio}>
-          💡 QDC - INSTALADO (INTERNO):
+      {/* 1º CARTÃO (AZUL): PADRÃO DE ENTRADA (POSTE) - VALOR MAIOR (BRUTO) */}
+      <View style={[styles.cardRelatorio, { backgroundColor: "#312e81" }]}>
+        <Text style={[styles.tituloRelatorio, { color: "#c7d2fe" }]}>
+          🏢 PADRÃO DE ENTRADA ({concessionaria}):
         </Text>
+
+        {infoTensao !== "" && (
+          <View
+            style={[
+              styles.linhaResumo,
+              {
+                borderBottomWidth: 1.5,
+                borderBottomColor: "rgba(255,255,255,0.4)",
+                paddingBottom: 8,
+                marginBottom: 4,
+              },
+            ]}
+          >
+            <Text style={[styles.labelBranco, { fontWeight: "bold" }]}>
+              Fornecimento:
+            </Text>
+            <Text
+              style={[styles.valorAmarelo, { color: "#ca8a04", fontSize: 13 }]}
+            >
+              {infoTensao}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.linhaResumo}>
           <Text style={styles.labelBranco}>Potência Total Bruta:</Text>
           <Text style={styles.valorBranco}>
@@ -40,39 +75,8 @@ export function CardResumoQuadro({
           <Text style={styles.valorBranco}>{resultadoQDC.correnteGeral} A</Text>
         </View>
         <View style={styles.linhaResumo}>
-          <Text style={styles.labelBranco}>Cabo Alimentador Interno:</Text>
-          <Text style={styles.valorAmarelo}>{resultadoQDC.caboGeral} mm²</Text>
-        </View>
-        <View style={styles.linhaResumo}>
-          <Text style={styles.labelBranco}>Disjuntor Geral (QDC):</Text>
-          <Text style={styles.valorAmarelo}>
-            {resultadoQDC.disjuntorGeral} A
-          </Text>
-        </View>
-      </View>
-
-      {/* CARTÃO AZUL: PADRÃO DE ENTRADA COM DETALHAMENTO DE METRAGEM E VIAS */}
-      <View style={[styles.cardRelatorio, { backgroundColor: "#312e81" }]}>
-        <Text style={[styles.tituloRelatorio, { color: "#c7d2fe" }]}>
-          🏢 PADRÃO DE ENTRADA ({concessionaria}):
-        </Text>
-        <View style={styles.linhaResumo}>
-          <Text style={styles.labelBranco}>Demanda Corrigida (S):</Text>
-          <Text style={[styles.valorAmarelo, { color: "#ca8a04" }]}>
-            {resultadoDemanda.potenciaTotalVA} VA
-          </Text>
-        </View>
-        <View style={styles.linhaResumo}>
-          <Text style={styles.labelBranco}>Corrente de Demanda (In):</Text>
-          <Text style={styles.valorBranco}>
-            {resultadoDemanda.correnteGeral} A
-          </Text>
-        </View>
-        <View style={styles.linhaResumo}>
           <Text style={styles.labelBranco}>Cabo do Ramal (Medidor):</Text>
-          <Text style={styles.valorAmarelo}>
-            {resultadoDemanda.caboGeral} mm²
-          </Text>
+          <Text style={styles.valorAmarelo}>{resultadoQDC.caboGeral} mm²</Text>
         </View>
 
         {/* DETALHE EXECUTIVO DA METRAGEM POR VIA */}
@@ -91,6 +95,59 @@ export function CardResumoQuadro({
 
         <View style={styles.linhaResumo}>
           <Text style={styles.labelBranco}>Disjuntor Geral (Poste):</Text>
+          <Text style={styles.valorAmarelo}>
+            {resultadoQDC.disjuntorGeral} A
+          </Text>
+        </View>
+      </View>
+
+      {/* 2º CARTÃO (VERDE): QDC INTERNO (RESIDÊNCIA) - VALOR COM DEMANDA */}
+      <View style={styles.cardRelatorio}>
+        <Text style={styles.tituloRelatorio}>
+          💡 QDC - INSTALADO (INTERNO):
+        </Text>
+
+        {infoTensao !== "" && (
+          <View
+            style={[
+              styles.linhaResumo,
+              {
+                borderBottomWidth: 1.5,
+                borderBottomColor: "rgba(255,255,255,0.4)",
+                paddingBottom: 8,
+                marginBottom: 4,
+              },
+            ]}
+          >
+            <Text style={[styles.labelBranco, { fontWeight: "bold" }]}>
+              Sistema Exigido:
+            </Text>
+            <Text style={[styles.valorAmarelo, { fontSize: 13 }]}>
+              {infoTensao}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.linhaResumo}>
+          <Text style={styles.labelBranco}>Demanda Corrigida (S):</Text>
+          <Text style={styles.valorAmarelo}>
+            {resultadoDemanda.potenciaTotalVA} VA
+          </Text>
+        </View>
+        <View style={styles.linhaResumo}>
+          <Text style={styles.labelBranco}>Corrente de Demanda (In):</Text>
+          <Text style={styles.valorBranco}>
+            {resultadoDemanda.correnteGeral} A
+          </Text>
+        </View>
+        <View style={styles.linhaResumo}>
+          <Text style={styles.labelBranco}>Cabo Alimentador Interno:</Text>
+          <Text style={styles.valorAmarelo}>
+            {resultadoDemanda.caboGeral} mm²
+          </Text>
+        </View>
+        <View style={styles.linhaResumo}>
+          <Text style={styles.labelBranco}>Disjuntor Geral (QDC):</Text>
           <Text style={styles.valorAmarelo}>
             {resultadoDemanda.disjuntorGeral} A
           </Text>
