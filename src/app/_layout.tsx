@@ -1,15 +1,23 @@
 // src/app/_layout.tsx
 
 import { Stack } from "expo-router";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react"; // 💡 NOVO: Importamos o gatilho
+import { useEffect } from "react";
 import { Platform, StyleSheet, View } from "react-native";
-import { checarAtualizacao } from "../utils/UpdateHelper"; // 💡 NOVO: Importamos a função
+import { checarAtualizacao } from "../utils/UpdateHelper";
 
 export default function RootLayout() {
-  // 💡 NOVO: O gatilho que verifica a atualização assim que o app abre
   useEffect(() => {
+    // 💡 Verifica atualização assim que o app abre
     checarAtualizacao();
+
+    // 🚀 Trava o app em modo retrato (Portrait Up) em dispositivos móveis
+    if (Platform.OS !== "web") {
+      ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP,
+      ).catch(() => {});
+    }
   }, []);
 
   return (
