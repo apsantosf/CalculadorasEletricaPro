@@ -13,32 +13,36 @@ import CardResultado from "../../components/ui/CardResultado";
 import CustomHeader from "../../components/ui/CustomHeaderResidencial";
 import FormTue from "../../components/ui/FormTue";
 import { useData } from "../../context/ResidencialContext";
-import {
-  dimensionarTUE,
-  obterDimensionamentoCircuito,
-} from "../../utils/calculationsResidencial";
+import { dimensionarTUE } from "../../utils/calculationsResidencial";
 
 export default function TelaTues() {
   const { adicionarComodo, removerComodo, tokenReset, comodos, tensaoGeral } =
     useData();
   const [resultadoTue, setResultadoTue] = useState<any>(null);
 
-  const tuesCadastrados = comodos
-    ? comodos.flatMap((c) => c.dispositivos).filter((d) => d.tipo === "tue")
-    : [];
-
   useEffect(() => {
     setResultadoTue(null);
   }, [tokenReset]);
 
-  const handleCalcularTue = (dados: { nome: string; potencia: number }) => {
+  // 💡 AGORA RECEBE A TENSÃO DO FORMULÁRIO!
+  const handleCalcularTue = (dados: {
+    nome: string;
+    potencia: number;
+    tensaoEspecifica: number;
+  }) => {
     const fp = dados.nome.toLowerCase().includes("chuveiro") ? 1.0 : 0.85;
-    const dimensionamento = dimensionarTUE(dados.potencia, tensaoGeral, fp);
+
+    // Calculamos o dimensionamento usando a tensão ESCOLHIDA, e não mais a tensão da casa.
+    const dimensionamento = dimensionarTUE(
+      dados.potencia,
+      dados.tensaoEspecifica,
+      fp,
+    );
 
     setResultadoTue({
       nome: dados.nome,
       potencia: dados.potencia,
-      tensao: tensaoGeral,
+      tensao: dados.tensaoEspecifica, // 🚀 Guardamos a tensão escolhida
       ...dimensionamento,
     });
   };
@@ -59,6 +63,7 @@ export default function TelaTues() {
           potencia: resultadoTue.potencia,
           unidade: "W",
           quantidade: 1,
+          tensao: resultadoTue.tensao, // 🚀 Gravamos no DataContext
         },
       ],
     });
@@ -103,8 +108,12 @@ export default function TelaTues() {
             <Text style={styles.avisoBloqueioTitulo}>⚠️ Acesso Bloqueado</Text>
             <Text style={styles.avisoBloqueioTexto}>
               Para preencher os Circuitos Específicos (TUEs), primeiro deve
-              voltar à aba de **Início** e selecionar a **Tensão de Trabalho
-              Interna**.
+              voltar à aba de <Text style={{ fontWeight: "bold" }}>Início</Text>{" "}
+              e selecionar a{" "}
+              <Text style={{ fontWeight: "bold" }}>
+                Tensão de Trabalho Interna
+              </Text>
+              .
             </Text>
           </View>
         ) : (
@@ -121,10 +130,10 @@ export default function TelaTues() {
                   ✅ Pronto para Adicionar!
                 </Text>
                 <CardResultado
-                  titulo={`⚡ Circuito Dedicado - ${resultadoTue.nome}`}
+                  titulo={`⚡ Circuito Dedicado (${resultadoTue.tensao}V)`}
                   corBorda="#7c3aed"
                   items={[
-                    { label: "Potência", valor: `${resultadoTue.potencia} W` },
+                    { label: "Equipamento", valor: resultadoTue.nome },
                     {
                       label: "Corrente",
                       valor: `${resultadoTue.correnteProjeto} A`,
@@ -165,24 +174,32 @@ export default function TelaTues() {
                     <Text style={styles.botaoRemover}>❌</Text>
                   </TouchableOpacity>
                 </View>
+
                 {comodo.dispositivos.map((disp: any) => {
                   const potTotal = disp.potencia * disp.quantidade;
-                  const dim = obterDimensionamentoCircuito(
-                    disp.tipo,
-                    potTotal,
-                    tensaoGeral,
-                  );
+                  const tensaoDisp = disp.tensao || tensaoGeral; // Puxa a tensão salva ou usa a geral
+
+                  // Lógica alterada para calcular com a tensão correta
+                  const fp = disp.nome.toLowerCase().includes("chuveiro")
+                    ? 1.0
+                    : 0.85;
+                  const dim = dimensionarTUE(potTotal, tensaoDisp, fp);
+
                   return (
                     <Text key={disp.id} style={styles.textoDispositivo}>
                       ↳ {disp.quantidade}x {disp.nome} ({potTotal}{" "}
                       {disp.unidade})
+                      <Text style={{ color: "#2563eb", fontWeight: "bold" }}>
+                        {" "}
+                        [{tensaoDisp}V]
+                      </Text>
                       <Text style={{ color: "#059669", fontWeight: "bold" }}>
                         {" "}
-                        | Fio {dim.cabo}mm²
+                        | Fio {dim.secaoCabo}mm²
                       </Text>
                       <Text style={{ color: "#dc2626", fontWeight: "bold" }}>
                         {" "}
-                        - Disj. {dim.disj}A
+                        - Disj. {dim.disjuntor}A
                       </Text>
                     </Text>
                   );

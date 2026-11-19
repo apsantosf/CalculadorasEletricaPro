@@ -2,7 +2,7 @@
   "expo": {
     "name": "Kit Elétrica Pro",
     "slug": "CalculadorasEletricaPro",
-    "version": "1.1.3",
+    "version": "1.1.4",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "calculadoraseletricapro",
@@ -20,7 +20,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.apsantosf.CalculadorasEletricaPro",
-      "versionCode": 8
+      "versionCode": 9
     },
     "web": {
       "output": "static",
