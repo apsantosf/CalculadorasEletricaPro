@@ -13,14 +13,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import CustomHeader from "../components/ui/CustomHeader";
-import { useData } from "../context/DataContext";
+import CustomHeader from "../../components/ui/CustomHeaderResidencial";
+import { useData } from "../../context/ResidencialContext";
 import {
   calcularIluminacao,
   calcularPotenciaTugs,
   calcularQuantidadeTugs,
   obterDimensionamentoCircuito, // 💡 Importado do motor central
-} from "../utils/calculations";
+} from "../../utils/calculationsResidencial";
 
 const TEMPLATES_COMODOS: Record<string, string> = {
   "Sala de Estar": "sala",
